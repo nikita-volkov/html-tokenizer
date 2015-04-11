@@ -91,13 +91,13 @@ closingTag =
 
 text :: Parser Text
 text =
-  fmap (convert :: Builder -> Text) $ fix $ \loop ->
-    (<>) <$>
-      (convert <$> takeWhile1 (/= '<')) <*>
-      ((shouldFail (void comment <|> void closingTag <|> void openingTag) *> ((<>) <$> (convert <$> char '<') <*> loop)) <|> pure mempty)
+  fmap ((convert :: Builder -> Text) . mconcat) $ many1 $
+  convert <$> htmlEntity <|> convert <$> nonTagChar
+  where
+    nonTagChar =
+      shouldFail comment *> shouldFail closingTag *> shouldFail openingTag *> anyChar
 
 shouldFail :: Parser a -> Parser ()
 shouldFail p =
-  (p *> empty) <|> pure ()
-
+  ((p $> False) <|> pure True) >>= bool empty (pure ())
 
