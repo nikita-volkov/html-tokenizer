@@ -1,4 +1,13 @@
-module HTMLTokenizer.Parser where
+module HTMLTokenizer.Parser
+(
+  -- * Model
+  Token(..),
+  OpeningTag,
+  Attribute,
+  -- * Parsers
+  token,
+)
+where
 
 import BasePrelude
 import Conversion
@@ -10,22 +19,35 @@ import Data.Attoparsec.Text
 import qualified Data.Text
 
 
+-- |
+-- An HTML token.
 data Token =
+  -- |
+  -- An opening tag.
   Token_OpeningTag OpeningTag |
-  Token_ClosingTag Identifier |
+  -- |
+  -- A closing tag name.
+  Token_ClosingTag Text |
+  -- |
+  -- A text between tags with HTML-entities decoded.
   Token_Text Text |
+  -- |
+  -- Contents of a comment.
   Token_Comment Text 
+  deriving (Show, Ord, Eq, Generic, Data, Typeable)
 
+-- |
+-- An opening tag name, attributes and whether it is closed.
 type OpeningTag =
-  (Identifier, [Attribute], Bool)
+  (Text, [Attribute], Bool)
 
+-- |
+-- A tag attribute identifier and a value with HTML-entities decoded.
 type Attribute =
-  (Identifier, Maybe Text)
+  (Text, Maybe Text)
 
-type Identifier =
-  Text
-
-
+-- |
+-- A token parser.
 token :: Parser Token
 token =
   Token_Comment <$> comment <|>
@@ -85,7 +107,7 @@ comment =
             (fmap convert (char '-'))
             (content))))
 
-closingTag :: Parser Identifier
+closingTag :: Parser Text
 closingTag =
   string "</" *> skipSpace *> identifier <* skipSpace <* char '>'
 
