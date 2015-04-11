@@ -8,8 +8,8 @@ description:
   This library can be used as a basis for complex HTML parsers,
   or for streaming.
   E.g., by composing it with the "pipes-attoparsec" library 
-  you can produce a token stream,
-  thus becoming able to implement an exceptionally efficient stream-parser,
+  you can produce a token stream with HTML-entities decoded,
+  thus becoming able to implement a highly efficient stream-parser,
   which works in a single pass, constant memory and is capable of early termination.
 category:
   Parsing, HTML, XML
