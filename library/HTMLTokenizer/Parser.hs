@@ -3,6 +3,7 @@ module HTMLTokenizer.Parser
   -- * Model
   Token(..),
   OpeningTag,
+  ClosingTag,
   Attribute,
   -- * Parsers
   token,
@@ -12,8 +13,10 @@ where
 import BasePrelude
 import Conversion
 import Conversion.Text
+import Conversion.CaseInsensitive
 import Data.Text (Text)
 import Data.Text.Lazy.Builder (Builder)
+import Data.CaseInsensitive (CI)
 import HTMLEntities.Parser
 import Data.Attoparsec.Text
 import qualified Data.Text
@@ -27,7 +30,7 @@ data Token =
   Token_OpeningTag OpeningTag |
   -- |
   -- A closing tag name.
-  Token_ClosingTag Text |
+  Token_ClosingTag (CI Text) |
   -- |
   -- A text between tags with HTML-entities decoded.
   Token_Text Text |
@@ -39,12 +42,17 @@ data Token =
 -- |
 -- An opening tag name, attributes and whether it is closed.
 type OpeningTag =
-  (Text, [Attribute], Bool)
+  (CI Text, [Attribute], Bool)
+
+-- |
+-- A closing tag name.
+type ClosingTag =
+  CI Text
 
 -- |
 -- A tag attribute identifier and a value with HTML-entities decoded.
 type Attribute =
-  (Text, Maybe Text)
+  (CI Text, Maybe Text)
 
 -- |
 -- A token parser.
@@ -67,7 +75,7 @@ openingTag =
     skipSpace
     closed <- convert <$> optional (char '/')
     char '>'
-    return (name, attributes, closed)
+    return (convert name, attributes, closed)
 
 attribute :: Parser Attribute
 attribute =
@@ -79,7 +87,7 @@ attribute =
         char '='
         skipSpace
         quotedValue '"' <|> quotedValue '\'' <|> unquotedValue
-    return (identifierValue, value)
+    return (convert identifierValue, value)
   where
     quotedValue q =
       do
@@ -109,9 +117,9 @@ comment =
             (fmap convert (char '-'))
             (content))))
 
-closingTag :: Parser Text
+closingTag :: Parser ClosingTag
 closingTag =
-  string "</" *> skipSpace *> identifier <* skipSpace <* char '>'
+  string "</" *> skipSpace *> fmap convert identifier <* skipSpace <* char '>'
 
 text :: Parser Text
 text =
