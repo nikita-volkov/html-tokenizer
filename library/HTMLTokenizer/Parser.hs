@@ -86,7 +86,7 @@ attribute =
         skipSpace
         char '='
         skipSpace
-        quotedValue '"' <|> quotedValue '\'' <|> unquotedValue
+        msum (map quotedValue quotChars) <|> entityQuotedValue <|> unquotedValue
     return (convert identifierValue, value)
   where
     quotedValue q =
@@ -99,6 +99,14 @@ attribute =
         return value
     unquotedValue =
       takeWhile1 isAlphaNum
+    entityQuotedValue =
+      do
+        q <- htmlEntity >>= \c -> bool mzero (return c) (elem c (map convert quotChars))
+        fmap ((convert :: Builder -> Text) . mconcat) $ 
+          manyTill' (fmap convert anyChar) (htmlEntity >>= guard . (==) q)
+    quotChars =
+      ['"', '\'', '`']
+
 
 identifier :: Parser Text
 identifier = 
