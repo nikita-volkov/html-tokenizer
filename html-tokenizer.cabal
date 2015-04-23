@@ -1,16 +1,18 @@
 name:
   html-tokenizer
 version:
-  0.2.1.0
+  0.2.1.1
 synopsis:
   An "attoparsec"-based HTML tokenizer
 description:
   This library can be used as a basis for complex HTML parsers,
   or for streaming.
-  E.g., by composing it with the "pipes-attoparsec" library 
+  E.g., by composing it with 
+  <http://hackage.haskell.org/package/list-t-attoparsec the "list-t-attoparsec" library>
   you can produce a token stream with HTML-entities decoded,
   thus becoming able to implement a highly efficient stream-parser,
   which works in a single pass, constant memory and is capable of early termination.
+  <http://hackage.haskell.org/package/list-t-html-parser "list-t-html-parser"> is such a parser.
 category:
   Parsing, HTML, XML
 homepage:
