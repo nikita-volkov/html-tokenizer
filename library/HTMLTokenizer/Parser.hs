@@ -29,8 +29,8 @@ data Token =
   -- An opening tag.
   Token_OpeningTag OpeningTag |
   -- |
-  -- A closing tag name.
-  Token_ClosingTag (CI Text) |
+  -- A closing tag.
+  Token_ClosingTag ClosingTag |
   -- |
   -- A text between tags with HTML-entities decoded.
   Token_Text Text |
