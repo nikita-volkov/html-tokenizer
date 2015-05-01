@@ -10,14 +10,13 @@ module HTMLTokenizer.Parser
 )
 where
 
-import BasePrelude
+import BasePrelude hiding (takeWhile)
 import Conversion
 import Conversion.Text
 import Conversion.CaseInsensitive
 import Data.Text (Text)
 import Data.Text.Lazy.Builder (Builder)
 import Data.CaseInsensitive (CI)
-import HTMLEntities.Parser
 import Data.Attoparsec.Text
 import qualified Data.Text
 
@@ -50,7 +49,7 @@ type Identifier =
   CI Text
 
 -- |
--- A tag attribute identifier and a value with HTML-entities decoded.
+-- A tag attribute identifier and a value.
 type Attribute =
   (Identifier, Maybe Text)
 
@@ -84,27 +83,17 @@ attribute =
         skipSpace
         char '='
         skipSpace
-        msum (map quotedValue quotChars) <|> entityQuotedValue <|> unquotedValue
+        msum (map quotedValue ['"', '\'', '`']) <|> entityQuotedValue <|> unquotedValue
     return (theIdentifier, value)
   where
     quotedValue q =
-      do
-        char q
-        value <- 
-          fmap ((convert :: Builder -> Text) . mconcat) $ many $ 
-          fmap convert htmlEntity <|> fmap convert (satisfy (/= q))
-        char q
-        return value
+      char q *> takeWhile (/= q) <* char q
     unquotedValue =
-      takeWhile1 isAlphaNum
+      takeWhile1 $ flip all [not . isSpace, not . flip elem ['=', '<', '>', '/']] . (&)
     entityQuotedValue =
-      do
-        q <- htmlEntity >>= \c -> bool mzero (return c) (elem c (map convert quotChars))
-        fmap ((convert :: Builder -> Text) . mconcat) $ 
-          manyTill' (fmap convert anyChar) (htmlEntity >>= guard . (==) q)
-    quotChars =
-      ['"', '\'', '`']
-
+      fmap convert $ q *> manyTill' anyChar q
+      where
+        q = asciiCI "&quot;"
 
 identifier :: Parser Identifier
 identifier = 
@@ -130,7 +119,7 @@ closingTag =
 text :: Parser Text
 text =
   fmap ((convert :: Builder -> Text) . mconcat) $ many1 $
-  convert <$> htmlEntity <|> convert <$> nonTagChar
+  convert <$> nonTagChar
   where
     nonTagChar =
       shouldFail comment *> shouldFail closingTag *> shouldFail openingTag *> anyChar

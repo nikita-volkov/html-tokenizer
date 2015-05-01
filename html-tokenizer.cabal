@@ -9,7 +9,7 @@ description:
   or for streaming.
   E.g., by composing it with 
   <http://hackage.haskell.org/package/list-t-attoparsec the "list-t-attoparsec" library>
-  you can produce a token stream with HTML-entities decoded,
+  you can produce a token stream,
   thus becoming able to implement a highly efficient stream-parser,
   which works in a single pass, constant memory and is capable of early termination.
   <http://hackage.haskell.org/package/list-t-html-parser "list-t-html-parser"> is such a parser.
@@ -49,7 +49,6 @@ library
   exposed-modules:
     HTMLTokenizer.Parser
   build-depends:
-    html-entities == 1.0.*,
     conversion >= 1.0.1 && < 2,
     conversion-text == 1.0.*,
     conversion-case-insensitive == 1.*,
