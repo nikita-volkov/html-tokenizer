@@ -3,7 +3,7 @@ module HTMLTokenizer.Parser
   -- * Model
   Token(..),
   OpeningTag,
-  ClosingTag,
+  Identifier,
   Attribute,
   -- * Parsers
   token,
@@ -30,7 +30,7 @@ data Token =
   Token_OpeningTag OpeningTag |
   -- |
   -- A closing tag.
-  Token_ClosingTag ClosingTag |
+  Token_ClosingTag Identifier |
   -- |
   -- A text between tags with HTML-entities decoded.
   Token_Text Text |
@@ -42,17 +42,17 @@ data Token =
 -- |
 -- An opening tag name, attributes and whether it is closed.
 type OpeningTag =
-  (CI Text, [Attribute], Bool)
+  (Identifier, [Attribute], Bool)
 
 -- |
--- A closing tag name.
-type ClosingTag =
+-- A case-insensitive identifier.
+type Identifier =
   CI Text
 
 -- |
 -- A tag attribute identifier and a value with HTML-entities decoded.
 type Attribute =
-  (CI Text, Maybe Text)
+  (Identifier, Maybe Text)
 
 -- |
 -- A token parser.
@@ -68,24 +68,24 @@ openingTag =
   do
     char '<'
     skipSpace
-    name <- identifier
+    theIdentifier <- identifier
     attributes <- many $ space *> skipSpace *> attribute
     skipSpace
     closed <- convert <$> optional (char '/')
     char '>'
-    return (convert name, attributes, closed)
+    return (theIdentifier, attributes, closed)
 
 attribute :: Parser Attribute
 attribute =
   do
-    identifierValue <- identifier
+    theIdentifier <- identifier
     value <-
       optional $ do
         skipSpace
         char '='
         skipSpace
         msum (map quotedValue quotChars) <|> entityQuotedValue <|> unquotedValue
-    return (convert identifierValue, value)
+    return (theIdentifier, value)
   where
     quotedValue q =
       do
@@ -106,9 +106,9 @@ attribute =
       ['"', '\'', '`']
 
 
-identifier :: Parser Text
+identifier :: Parser Identifier
 identifier = 
-  takeWhile1 (flip any [isAlphaNum, flip elem ['_', '-', '!', '?']] . flip ($))
+  fmap convert $ takeWhile1 (flip any [isAlphaNum, flip elem ['_', '-', '!', '?']] . flip ($))
 
 comment :: Parser Text
 comment =
@@ -123,9 +123,9 @@ comment =
             (fmap convert (char '-'))
             (content))))
 
-closingTag :: Parser ClosingTag
+closingTag :: Parser Identifier
 closingTag =
-  string "</" *> skipSpace *> fmap convert identifier <* skipSpace <* char '>'
+  string "</" *> skipSpace *> identifier <* skipSpace <* char '>'
 
 text :: Parser Text
 text =
