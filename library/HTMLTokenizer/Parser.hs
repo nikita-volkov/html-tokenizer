@@ -137,5 +137,5 @@ text =
 
 shouldFail :: Parser a -> Parser ()
 shouldFail p =
-  ((p $> False) <|> pure True) >>= bool empty (pure ())
+  join $ (p $> empty) <|> pure (pure ())
 
