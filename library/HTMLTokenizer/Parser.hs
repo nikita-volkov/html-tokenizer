@@ -58,12 +58,10 @@ type Attribute =
 -- A token parser.
 token :: Parser Token
 token =
-  skipSpace *> (
-    Token_Comment <$> comment <|>
-    Token_ClosingTag <$> closingTag <|>
-    Token_OpeningTag <$> openingTag <|>
-    Token_Text <$> text
-  )
+  Token_Comment <$> comment <|>
+  Token_ClosingTag <$> closingTag <|>
+  Token_OpeningTag <$> openingTag <|>
+  Token_Text <$> text
 
 openingTag :: Parser OpeningTag
 openingTag =
