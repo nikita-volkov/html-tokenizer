@@ -1,7 +1,7 @@
 name:
   html-tokenizer
 version:
-  0.3.0.2
+  0.3.0.3
 synopsis:
   An "attoparsec"-based HTML tokenizer
 description:

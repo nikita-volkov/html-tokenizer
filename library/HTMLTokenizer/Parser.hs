@@ -31,7 +31,7 @@ data Token =
   -- A closing tag.
   Token_ClosingTag Identifier |
   -- |
-  -- A text between tags with HTML-entities decoded.
+  -- A text between tags.
   Token_Text Text |
   -- |
   -- Contents of a comment.
