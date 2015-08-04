@@ -55,6 +55,8 @@ type Attribute =
 
 -- |
 -- A token parser.
+-- 
+-- Does not decode entities.
 token :: Parser Token
 token =
   Token_Comment <$> comment <|>
@@ -90,6 +92,8 @@ attribute =
       char q *> takeWhile (/= q) <* char q
     unquotedValue =
       takeWhile1 $ flip all [not . isSpace, not . flip elem ['=', '<', '>', '/']] . (&)
+    -- |
+    -- For some really messed-up HTML.
     entityQuotedValue =
       fmap convert $ q *> manyTill' anyChar q
       where
