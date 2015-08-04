@@ -1,7 +1,7 @@
 name:
   html-tokenizer
 version:
-  0.3.0.3
+  0.4.0.0
 synopsis:
   An "attoparsec"-based HTML tokenizer
 description:
@@ -51,8 +51,6 @@ library
   build-depends:
     conversion >= 1.0.1 && < 2,
     conversion-text >= 1.0.0.1 && < 2,
-    conversion-case-insensitive == 1.*,
-    case-insensitive == 1.2.*,
     text >= 1 && < 2,
     attoparsec >= 0.10 && < 0.14,
     base-prelude >= 0.1.19 && < 0.2
