@@ -47,7 +47,7 @@ library
     library
   other-modules:
   exposed-modules:
-    HTMLTokenizer.Parser
+    HTMLTokenizer
   build-depends:
     conversion >= 1.0.1 && < 2,
     conversion-text >= 1.0.0.1 && < 2,
