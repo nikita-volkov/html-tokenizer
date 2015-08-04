@@ -110,7 +110,7 @@ attribute =
 
 identifier :: Parser Text
 identifier = 
-  takeWhile1 (flip any [isAlphaNum, flip elem ['_', '-', '!', '?']] . flip ($))
+  takeWhile1 (flip any [isAlphaNum, flip elem ['_', '-']] . flip ($))
 
 comment :: Parser Text
 comment =
