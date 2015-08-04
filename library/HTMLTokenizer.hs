@@ -49,7 +49,7 @@ type OpeningTag =
 -- |
 -- A case-insensitive identifier.
 type Identifier =
-  CI Text
+  (Maybe (CI Text), CI Text)
 
 -- |
 -- A tag attribute identifier and a value.
@@ -120,8 +120,11 @@ attribute =
         q = asciiCI "&quot;"
 
 identifier :: Parser Identifier
-identifier = 
-  fmap convert $ takeWhile1 $ flip any [isAlphaNum, flip elem ['_', '-']] . (&)
+identifier =
+  (,) <$> optional (component <* char ':') <*> component
+  where
+    component =
+      fmap convert $ takeWhile1 $ flip any [isAlphaNum, flip elem ['_', '-']] . (&)
 
 comment :: Parser Text
 comment =
