@@ -3,7 +3,7 @@ module HTMLTokenizer
   -- * Model
   Token(..),
   OpeningTag,
-  Identifier,
+  Identifier(..),
   Attribute,
   -- * Parsers
   token,
@@ -48,8 +48,15 @@ type OpeningTag =
 
 -- |
 -- A case-insensitive identifier.
-type Identifier =
-  (Maybe (CI Text), CI Text)
+data Identifier =
+  Identifier (Maybe (CI Text)) (CI Text)
+  deriving (Show, Ord, Eq, Generic, Data, Typeable)
+
+instance IsString Identifier where
+  fromString =
+    either (error "Invalid identifier") id .
+    parseOnly identifier .
+    convert
 
 -- |
 -- A tag attribute identifier and a value.
@@ -121,7 +128,7 @@ attribute =
 
 identifier :: Parser Identifier
 identifier =
-  (,) <$> optional (component <* char ':') <*> component
+  Identifier <$> optional (component <* char ':') <*> component
   where
     component =
       fmap convert $ takeWhile1 $ flip any [isAlphaNum, flip elem ['_', '-']] . (&)
