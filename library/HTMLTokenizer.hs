@@ -3,7 +3,7 @@ module HTMLTokenizer
   -- * Model
   Token(..),
   OpeningTag,
-  Text,
+  Identifier,
   Attribute,
   -- * Parsers
   token,
@@ -13,8 +13,10 @@ where
 import BasePrelude hiding (takeWhile)
 import Conversion
 import Conversion.Text
+import Conversion.CaseInsensitive
 import Data.Text (Text)
 import Data.Text.Lazy.Builder (Builder)
+import Data.CaseInsensitive (CI)
 import Data.Attoparsec.Text
 import qualified Data.Text
 
@@ -30,7 +32,7 @@ data Token =
   Token_OpeningTag OpeningTag |
   -- |
   -- A closing tag.
-  Token_ClosingTag Text |
+  Token_ClosingTag Identifier |
   -- |
   -- A text between tags.
   Token_Text Text |
@@ -42,12 +44,17 @@ data Token =
 -- |
 -- An opening tag name, attributes and whether it is closed.
 type OpeningTag =
-  (Text, [Attribute], Bool)
+  (Identifier, [Attribute], Bool)
+
+-- |
+-- A case-insensitive identifier.
+type Identifier =
+  CI Text
 
 -- |
 -- A tag attribute identifier and a value.
 type Attribute =
-  (Text, Maybe Text)
+  (Identifier, Maybe Text)
 
 -- |
 -- A token parser.
@@ -108,9 +115,9 @@ attribute =
       where
         q = asciiCI "&quot;"
 
-identifier :: Parser Text
+identifier :: Parser Identifier
 identifier = 
-  takeWhile1 (flip any [isAlphaNum, flip elem ['_', '-']] . flip ($))
+  fmap convert $ takeWhile1 $ flip any [isAlphaNum, flip elem ['_', '-']] . (&)
 
 comment :: Parser Text
 comment =
@@ -125,7 +132,7 @@ comment =
             (fmap convert (char '-'))
             (content))))
 
-closingTag :: Parser Text
+closingTag :: Parser Identifier
 closingTag =
   string "</" *> skipSpace *> identifier <* skipSpace <* char '>'
 
