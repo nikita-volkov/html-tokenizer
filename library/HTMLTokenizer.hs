@@ -146,7 +146,7 @@ text =
   convert <$> nonTagChar
   where
     nonTagChar =
-      shouldFail comment *> shouldFail closingTag *> shouldFail openingTag *> anyChar
+      shouldFail comment *> shouldFail closingTag *> shouldFail openingTag *> shouldFail doctype *> anyChar
 
 shouldFail :: Parser a -> Parser ()
 shouldFail p =
