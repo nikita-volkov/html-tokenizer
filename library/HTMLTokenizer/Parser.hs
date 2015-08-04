@@ -23,6 +23,9 @@ import qualified Data.Text
 -- An HTML token.
 data Token =
   -- |
+  -- A Doctype declaration.
+  Token_Doctype Text |
+  -- |
   -- An opening tag.
   Token_OpeningTag OpeningTag |
   -- |
@@ -52,10 +55,23 @@ type Attribute =
 -- Does not decode entities.
 token :: Parser Token
 token =
+  Token_Doctype <$> doctype <|>
   Token_Comment <$> comment <|>
   Token_ClosingTag <$> closingTag <|>
   Token_OpeningTag <$> openingTag <|>
   Token_Text <$> text
+
+doctype :: Parser Text
+doctype =
+  do
+    string "<!"
+    skipSpace
+    asciiCI "doctype"
+    space
+    skipSpace
+    contents <- takeWhile1 (/= '>')
+    char '>'
+    return contents
 
 openingTag :: Parser OpeningTag
 openingTag =
