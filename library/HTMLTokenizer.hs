@@ -10,13 +10,8 @@ module HTMLTokenizer
 )
 where
 
-import BasePrelude hiding (takeWhile)
-import Conversion
-import Conversion.Text
-import Conversion.CaseInsensitive
-import Data.Text (Text)
+import HTMLTokenizer.Prelude hiding (takeWhile)
 import Data.Text.Lazy.Builder (Builder)
-import Data.CaseInsensitive (CI)
 import Data.Attoparsec.Text
 import qualified Data.Text
 

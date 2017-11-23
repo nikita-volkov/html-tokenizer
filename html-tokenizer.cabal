@@ -50,6 +50,7 @@ library
   exposed-modules:
     HTMLTokenizer
   other-modules:
+    HTMLTokenizer.Prelude
   build-depends:
     conversion >=1.0.1 && <2,
     conversion-text >=1.0.0.1 && <2,
