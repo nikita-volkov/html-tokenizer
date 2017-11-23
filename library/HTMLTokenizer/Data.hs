@@ -8,8 +8,7 @@ import HTMLTokenizer.Prelude
 data Token =
   OpeningTagToken !Name !(Vector Attribute) !Bool |
   ClosingTagToken !Name |
-  SpaceToken |
-  TextToken !Name |
+  TextToken !Text |
   CommentToken !Text |
   DoctypeToken !Text
 

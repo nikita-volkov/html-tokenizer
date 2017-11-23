@@ -7,7 +7,11 @@ where
 
 -- base-prelude
 -------------------------
-import BasePrelude as Exports
+import BasePrelude as Exports hiding ((<>), First(..), Last(..))
+
+-- semigroups
+-------------------------
+import Data.Semigroup as Exports
 
 -- text
 -------------------------
