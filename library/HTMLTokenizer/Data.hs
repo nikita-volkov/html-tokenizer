@@ -11,13 +11,13 @@ data Token =
   TextToken !Text |
   CommentToken !Text |
   DoctypeToken !Text
-  deriving (Show)
+  deriving (Show, Eq)
 
 data Name =
   UnprefixedName !Text |
   PrefixedName !Text !Text
-  deriving (Show)
+  deriving (Show, Eq)
 
 data Attribute =
   Attribute !Name !Text
-  deriving (Show)
+  deriving (Show, Eq)

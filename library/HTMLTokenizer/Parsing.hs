@@ -19,11 +19,13 @@ Token parser, which also decodes entities.
 -}
 token :: Parser Token
 token =
+  labeled "HTML Token" $
   openingTag OpeningTagToken <|>
   ClosingTagToken <$> closingTag <|>
   TextToken <$> textBetweenTags <|>
   CommentToken <$> comment <|>
-  DoctypeToken <$> doctype
+  DoctypeToken <$> doctype <|>
+  fail "Invalid token"
 
 {-|
 >>> parseOnly doctype "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\">"
@@ -31,7 +33,7 @@ Right "html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp
 -}
 doctype :: Parser Text
 doctype =
-  do
+  labeled "Doctype" $ do
     string "<!"
     skipSpace
     asciiCI "doctype"
@@ -43,23 +45,24 @@ doctype =
 
 openingTag :: (Name -> Vector Attribute -> Bool -> openingTag) -> Parser openingTag
 openingTag openingTag =
-  do
+  labeled "Opening tag" $ do
     char '<'
     skipSpace
-    theName <- name
+    tagName <- name
     attributes <- C.many (space *> skipSpace *> attribute)
     skipSpace
     closed <- (char '/' $> True) <|> pure False
     char '>'
-    return (openingTag theName attributes closed)
+    return (openingTag tagName attributes closed)
 
 closingTag :: Parser Name
 closingTag =
+  labeled "Closing tag" $
   string "</" *> skipSpace *> name <* skipSpace <* char '>'
 
 textBetweenTags :: Parser Text
 textBetweenTags =
-  do
+  labeled "Text between tags" $ do
     prefixSpace <- (space *> skipSpace $> A.char ' ') <|> pure mempty
     text <- loop prefixSpace mempty
     if A.null text
@@ -78,12 +81,14 @@ textBetweenTags =
               else loop (builder <> A.text unconsumedSpace <> parsedWord) space
           where
             word =
-              B.concat1 (normalChunk <|> entity)
+              B.concat1 (normalChunk <|> entity <|> ampersand)
               where
                 normalChunk =
-                  A.text <$> takeWhile1 (\ x -> not (isSpace x) && x /= '<')
+                  A.text <$> takeWhile1 (\ x -> not (isSpace x) && x /= '<' && x /= '&')
                 entity =
                   A.text <$> htmlEntity
+                ampersand =
+                  A.char <$> char '&'
         end =
           if D.null unconsumedSpace
             then return builder
@@ -91,6 +96,7 @@ textBetweenTags =
 
 comment :: Parser Text
 comment =
+  labeled "Comment" $
   string "<!--" *> (A.run <$> loop mempty)
   where
     loop !builder =
@@ -107,7 +113,7 @@ comment =
 
 attribute :: Parser Attribute
 attribute =
-  do
+  labeled "Attribute" $ do
     attributeName <- name
     mplus
       (do
@@ -140,11 +146,11 @@ unquotedContent =
 
 name :: Parser Name
 name =
-  do
+  labeled "Name" $ do
     c1 <- isolatedTextInsideTag
-    skipSpace
     (mplus
       (do
+        skipSpace
         char ':'
         skipSpace
         c2 <- isolatedTextInsideTag
@@ -153,17 +159,19 @@ name =
 
 isolatedTextInsideTag :: Parser Text
 isolatedTextInsideTag =
-  A.run <$> B.concat1 (normal <|> entity)
+  A.run <$> B.concat1 (normal <|> entity <|> ampersand)
   where
     normal =
       A.text <$> takeWhile1 predicate
       where
         predicate x =
-          x /= '>' && x /= '/' && not (isSpace x) &&
+          x /= '>' && x /= '/' && not (isSpace x) && x /= '=' &&
           x /= '&' && x /= '<' &&
           x /= '"' && x /= '\'' && x /= '`'
     entity =
       A.text <$> htmlEntity
+    ampersand =
+      A.char <$> char '&'
 
 shouldFail :: Parser a -> Parser ()
 shouldFail p =
@@ -179,4 +187,8 @@ skipSpaceLeaving1 =
         then skipSpaceLeaving1
         else mzero)
     (return ())
-    
+
+{-# INLINE labeled #-}
+labeled :: String -> Parser a -> Parser a
+labeled label parser =
+  parser <?> label
