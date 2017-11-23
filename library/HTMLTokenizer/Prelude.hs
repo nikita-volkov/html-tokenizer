@@ -17,16 +17,6 @@ import Data.Semigroup as Exports
 -------------------------
 import Data.Text as Exports (Text)
 
--- case-insensitive
--------------------------
-import Data.CaseInsensitive as Exports (CI)
-
--- conversion
--------------------------
-import Conversion as Exports
-import Conversion.Text as Exports
-import Conversion.CaseInsensitive as Exports
-
 -- vector
 -------------------------
 import Data.Vector as Exports (Vector)
