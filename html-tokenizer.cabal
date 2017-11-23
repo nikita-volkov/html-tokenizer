@@ -53,11 +53,12 @@ library
     HTMLTokenizer.Data
     HTMLTokenizer.Prelude
   build-depends:
-    conversion >=1.0.1 && <2,
-    conversion-text >=1.0.0.1 && <2,
-    conversion-case-insensitive ==1.*,
-    case-insensitive ==1.2.*,
-    vector >=0.10 && <0.13,
-    text >=1 && <2,
     attoparsec >=0.10 && <0.14,
-    base-prelude >=0.1.19 && <2
+    base >=4.7 && <5,
+    base-prelude >=0.1.19 && <2,
+    case-insensitive >=1.2 && <2,
+    conversion >=1.0.1 && <2,
+    conversion-case-insensitive >=1 && <2,
+    conversion-text >=1.0.0.1 && <2,
+    text >=1 && <2,
+    vector >=0.10 && <0.13
