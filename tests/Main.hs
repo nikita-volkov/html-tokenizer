@@ -52,6 +52,10 @@ main =
       (Right (A.OpeningTagToken (A.UnprefixedName "x") (D.fromList [A.Attribute (A.UnprefixedName "attr") ""]) True))
       "<x attr/>"
     ,
+    testTokenParsing "Quoteless attributes"
+      (Right (A.OpeningTagToken (A.UnprefixedName "x") (D.fromList [A.Attribute (A.UnprefixedName "attr") "abc"]) True))
+      "<x attr=abc/>"
+    ,
     testTokenParsing "Closing tag"
       (Right (A.ClosingTagToken (A.UnprefixedName "x")))
       "</x>"
