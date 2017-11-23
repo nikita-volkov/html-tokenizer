@@ -22,3 +22,7 @@ import Data.CaseInsensitive as Exports (CI)
 import Conversion as Exports
 import Conversion.Text as Exports
 import Conversion.CaseInsensitive as Exports
+
+-- vector
+-------------------------
+import Data.Vector as Exports (Vector)
