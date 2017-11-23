@@ -49,7 +49,7 @@ openingTag openingTag =
     theName <- name
     attributes <- C.many (space *> skipSpace *> attribute)
     skipSpace
-    closed <- convert <$> optional (char '/')
+    closed <- (char '/' $> True) <|> pure False
     char '>'
     return (openingTag theName attributes closed)
 
