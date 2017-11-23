@@ -74,15 +74,6 @@ main =
         ])
       "<x>   abc \n </x>"
     ,
-    testTokensParsing "Text between tags, unstripped"
-      (Right
-        [
-          A.OpeningTagToken (A.UnprefixedName "x") mempty False,
-          A.TextToken " abc ",
-          A.ClosingTagToken (A.UnprefixedName "x")
-        ])
-      "<x>   abc \n </x>"
-    ,
     testTokensParsing "Text between tags, entities"
       (Right
         [
