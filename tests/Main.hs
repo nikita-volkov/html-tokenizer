@@ -60,6 +60,10 @@ main =
       (Right (A.ClosingTagToken (A.UnprefixedName "x")))
       "</x>"
     ,
+    testTokenParsing "Closing tag"
+      (Right (A.DoctypeToken "html"))
+      "<!DOCTYPE html>"
+    ,
     testTokensParsing "Text between tags, stripped"
       (Right
         [

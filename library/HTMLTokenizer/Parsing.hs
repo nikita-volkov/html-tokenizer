@@ -20,11 +20,11 @@ Token parser, which also decodes entities.
 token :: Parser Token
 token =
   labeled "HTML Token" $
+  DoctypeToken <$> doctype <|>
   openingTag OpeningTagToken <|>
   ClosingTagToken <$> closingTag <|>
   TextToken <$> textBetweenTags <|>
   CommentToken <$> comment <|>
-  DoctypeToken <$> doctype <|>
   fail "Invalid token"
 
 {-|
