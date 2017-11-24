@@ -27,10 +27,6 @@ token =
   CommentToken <$> comment <|>
   fail "Invalid token"
 
-{-|
->>> parseOnly doctype "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\">"
-Right "html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\""
--}
 doctype :: Parser Text
 doctype =
   labeled "Doctype" $ do

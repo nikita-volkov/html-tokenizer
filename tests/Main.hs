@@ -61,8 +61,8 @@ main =
       "</x>"
     ,
     testTokenParsing "Closing tag"
-      (Right (A.DoctypeToken "html"))
-      "<!DOCTYPE html>"
+      (Right (A.DoctypeToken "html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\""))
+      "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\">"
     ,
     testTokensParsing "Text between tags, stripped"
       (Right
