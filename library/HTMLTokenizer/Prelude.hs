@@ -1,6 +1,8 @@
 module HTMLTokenizer.Prelude
 ( 
   module Exports,
+  textString,
+  showText,
 )
 where
 
@@ -20,3 +22,15 @@ import Data.Text as Exports (Text)
 -- vector
 -------------------------
 import Data.Vector as Exports (Vector)
+
+--------------------------------------------------------------------------------
+
+import qualified Data.Text as A
+
+textString :: Text -> String
+textString =
+  A.unpack
+
+showText :: Show a => a -> Text
+showText =
+  fromString . show

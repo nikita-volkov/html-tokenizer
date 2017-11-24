@@ -43,7 +43,12 @@ library
   exposed-modules:
     HTMLTokenizer.Data
     HTMLTokenizer.Parsing
+    HTMLTokenizer.Rendering.Text
+    HTMLTokenizer.Rendering.Text.Builder
   other-modules:
+    HTMLTokenizer.Data.Types
+    HTMLTokenizer.Data.Instances.Show
+    HTMLTokenizer.Data.Instances.Eq
     HTMLTokenizer.MonadPlus
     HTMLTokenizer.Prelude
   build-depends:
