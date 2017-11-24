@@ -69,37 +69,6 @@ token =
         char '>'
         return (OpeningTagToken tagName attributes closed)
 
-doctype :: Parser (Parser Text)
-doctype =
-  labeled "Doctype" $ do
-    string "<!"
-    return $ do
-      skipSpace
-      asciiCI "doctype"
-      space
-      skipSpace
-      contents <- takeWhile1 (/= '>')
-      char '>'
-      return contents
-
-openingTag :: (Name -> Vector Attribute -> Bool -> openingTag) -> Parser (Parser openingTag)
-openingTag openingTag =
-  labeled "Opening tag" $ do
-    char '<'
-    return $ do
-      skipSpace
-      tagName <- name
-      attributes <- C.many (space *> skipSpace *> attribute)
-      skipSpace
-      closed <- (char '/' $> True) <|> pure False
-      char '>'
-      return (openingTag tagName attributes closed)
-
-closingTag :: Parser (Parser Name)
-closingTag =
-  labeled "Closing tag" $
-  string "</" $> (skipSpace *> name <* skipSpace <* char '>')
-
 textBetweenTags :: Parser Text
 textBetweenTags =
   labeled "Text between tags" $ do
@@ -133,23 +102,6 @@ textBetweenTags =
           if D.null unconsumedSpace
             then return builder
             else return (builder <> A.char ' ')
-
-comment :: Parser (Parser Text)
-comment =
-  labeled "Comment" $
-  string "<!--" $> (A.run <$> loop mempty)
-  where
-    loop !builder =
-      do
-        textWithoutDashes <- A.text <$> takeWhile (/= '-')
-        mplus
-          (string "-->" $> builder <> textWithoutDashes)
-          (mplus
-            (char '-' *> loop (builder <> textWithoutDashes <> A.char '-'))
-            (return (builder <> textWithoutDashes)))
-      where
-        textWithoutDashes =
-          A.text <$> takeWhile1 (/= '-')
 
 attribute :: Parser Attribute
 attribute =
