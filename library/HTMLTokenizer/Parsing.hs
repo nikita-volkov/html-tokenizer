@@ -139,13 +139,13 @@ unquotedContent =
 name :: Parser Name
 name =
   labeled "Name" $ do
-    c1 <- isolatedTextInsideTag
+    c1 <- D.toLower <$> isolatedTextInsideTag
     (mplus
       (do
         skipSpace
         char ':'
         skipSpace
-        c2 <- isolatedTextInsideTag
+        c2 <- D.toLower <$> isolatedTextInsideTag
         return (PrefixedName c1 c2))
       (return (UnprefixedName c1)))
 
