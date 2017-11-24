@@ -69,34 +69,36 @@ token =
         char '>'
         return (OpeningTagToken tagName attributes closed)
 
-doctype :: Parser Text
+doctype :: Parser (Parser Text)
 doctype =
   labeled "Doctype" $ do
     string "<!"
-    skipSpace
-    asciiCI "doctype"
-    space
-    skipSpace
-    contents <- takeWhile1 (/= '>')
-    char '>'
-    return contents
+    return $ do
+      skipSpace
+      asciiCI "doctype"
+      space
+      skipSpace
+      contents <- takeWhile1 (/= '>')
+      char '>'
+      return contents
 
-openingTag :: (Name -> Vector Attribute -> Bool -> openingTag) -> Parser openingTag
+openingTag :: (Name -> Vector Attribute -> Bool -> openingTag) -> Parser (Parser openingTag)
 openingTag openingTag =
   labeled "Opening tag" $ do
     char '<'
-    skipSpace
-    tagName <- name
-    attributes <- C.many (space *> skipSpace *> attribute)
-    skipSpace
-    closed <- (char '/' $> True) <|> pure False
-    char '>'
-    return (openingTag tagName attributes closed)
+    return $ do
+      skipSpace
+      tagName <- name
+      attributes <- C.many (space *> skipSpace *> attribute)
+      skipSpace
+      closed <- (char '/' $> True) <|> pure False
+      char '>'
+      return (openingTag tagName attributes closed)
 
-closingTag :: Parser Name
+closingTag :: Parser (Parser Name)
 closingTag =
   labeled "Closing tag" $
-  string "</" *> skipSpace *> name <* skipSpace <* char '>'
+  string "</" $> (skipSpace *> name <* skipSpace <* char '>')
 
 textBetweenTags :: Parser Text
 textBetweenTags =
@@ -132,10 +134,10 @@ textBetweenTags =
             then return builder
             else return (builder <> A.char ' ')
 
-comment :: Parser Text
+comment :: Parser (Parser Text)
 comment =
   labeled "Comment" $
-  string "<!--" *> (A.run <$> loop mempty)
+  string "<!--" $> (A.run <$> loop mempty)
   where
     loop !builder =
       do
