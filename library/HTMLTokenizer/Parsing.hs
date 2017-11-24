@@ -20,12 +20,54 @@ Token parser, which also decodes entities.
 token :: Parser Token
 token =
   labeled "HTML Token" $
-  DoctypeToken <$> doctype <|>
-  openingTag OpeningTagToken <|>
-  ClosingTagToken <$> closingTag <|>
-  TextToken <$> textBetweenTags <|>
-  CommentToken <$> comment <|>
-  fail "Invalid token"
+  join
+    (mplus
+      (do
+        char '<'
+        mplus
+          (do
+            char '!'
+            mplus
+              (string "--" $> commentTagBody)
+              (asciiCI "doctype" $> doctypeTagBody))
+          (mplus
+            (char '/' $> closingTagBody)
+            (pure openingTagBody)))
+      (pure (TextToken <$> textBetweenTags)))
+  where
+    commentTagBody =
+      labeled "Comment" (CommentToken . A.run <$> loop mempty)
+      where
+        loop !builder =
+          do
+            textWithoutDashes <- A.text <$> takeWhile (/= '-')
+            mplus
+              (string "-->" $> builder <> textWithoutDashes)
+              (mplus
+                (char '-' *> loop (builder <> textWithoutDashes <> A.char '-'))
+                (return (builder <> textWithoutDashes)))
+          where
+            textWithoutDashes =
+              A.text <$> takeWhile1 (/= '-')
+    doctypeTagBody =
+      labeled "Doctype" $ do
+        space
+        skipSpace
+        contents <- takeWhile1 (/= '>')
+        char '>'
+        return (DoctypeToken contents)
+    closingTagBody =
+      labeled "Closing tag" $
+      skipSpace *> (ClosingTagToken <$> name) <* skipSpace <* char '>'
+    openingTagBody =
+      labeled "Opening tag" $ do
+        skipSpace
+        tagName <- name
+        attributes <- C.many (space *> skipSpace *> attribute)
+        skipSpace
+        closed <- (char '/' $> True) <|> pure False
+        char '>'
+        return (OpeningTagToken tagName attributes closed)
 
 doctype :: Parser Text
 doctype =
