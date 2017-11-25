@@ -1,6 +1,8 @@
 module HTMLTokenizer.Parsing
 (
   token,
+  attribute,
+  name,
 )
 where
 
