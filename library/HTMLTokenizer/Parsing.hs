@@ -34,7 +34,10 @@ token =
               (asciiCI "doctype" $> doctypeTagBody))
           (mplus
             (char '/' $> closingTagBody)
-            (pure openingTagBody)))
+            (pure
+              (mplus
+                openingTagBody
+                (pure (TextToken "<"))))))
       (pure (TextToken <$> textBetweenTags)))
   where
     commentTagBody =

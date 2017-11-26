@@ -10,6 +10,7 @@ import qualified HTMLTokenizer.Data as A
 import qualified HTMLTokenizer.Parsing as B
 import qualified Data.Attoparsec.Text as C
 import qualified Data.Vector as D
+import qualified Data.Text.IO as E
 
 
 main =
@@ -99,6 +100,8 @@ main =
           A.ClosingTagToken (A.UnprefixedName "x")
         ])
       "<x>a&lt;c & #120;</x>"
+    ,
+    sample1
   ]
   where
     testTokenParsing name expectedResult text =
@@ -108,3 +111,13 @@ main =
       testCase name $
       assertEqual "" expectedResult (C.parseOnly (many B.token <* C.endOfInput) text)
 
+sample1 :: TestTree
+sample1 =
+  testGroup "sample1" $
+  [
+    testCase "A quite broken stream should parse in full" $
+    assertBool "" (not (null (C.parseOnly (many B.token <* C.endOfInput) pageContents)))
+  ]
+  where
+    pageContents =
+      unsafePerformIO (E.readFile "samples/1.html")
