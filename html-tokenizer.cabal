@@ -49,6 +49,7 @@ library
     HTMLTokenizer.Data.Types
     HTMLTokenizer.Data.Instances.Show
     HTMLTokenizer.Data.Instances.Eq
+    HTMLTokenizer.Data.Instances.Generic
     HTMLTokenizer.MonadPlus
     HTMLTokenizer.Prelude
   build-depends:
